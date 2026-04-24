@@ -89,22 +89,95 @@ O sistema possui as seguintes funcionalidades:
 
 ## 🔎 Consultas SQL com JOIN
 
-O sistema realiza consultas com junção entre tabelas para exibir informações completas.
+O sistema **EcoRoute** utiliza consultas SQL com `INNER JOIN` e `LEFT JOIN` para integrar informações entre as tabelas `usuario`, `veiculo`, `carona` e `reserva`.
 
-### INNER JOIN
-Utilizado para listar:
+Essas consultas permitem exibir dados completos do sistema, como:
 
-- caronas com nome do motorista e veículo
-- reservas com nome do passageiro e dados da carona
-- veículos com nome do motorista
+- veículos com o nome do motorista
+- caronas com motorista e veículo
+- reservas com passageiro e destino
+- relatórios completos com passageiro, motorista e veículo
+- motoristas mesmo sem caronas cadastradas
 
-### LEFT JOIN
-Utilizado para listar:
-
-- motoristas mesmo que ainda não tenham cadastrado caronas
-- caronas mesmo que ainda não tenham reservas
-
----
+### 1. Veículos com nome do motorista
+```sql
+SELECT 
+    v.id_veiculo,
+    v.modelo,
+    v.placa,
+    v.cor,
+    v.capacidade,
+    u.nome AS motorista
+FROM veiculo v
+INNER JOIN usuario u ON v.id_usuario = u.id_usuario
+WHERE u.tipo_usuario = 'motorista';
+```
+### 2. Caronas com motorista e veículo
+```sql
+SELECT 
+    c.id_carona,
+    u.nome AS motorista,
+    v.modelo AS veiculo,
+    v.placa,
+    c.origem,
+    c.destino,
+    c.data_saida,
+    c.horario_saida,
+    c.vagas_disponiveis,
+    c.valor,
+    c.status
+FROM carona c
+INNER JOIN usuario u ON c.id_usuario = u.id_usuario
+INNER JOIN veiculo v ON c.id_veiculo = v.id_veiculo
+WHERE u.tipo_usuario = 'motorista';
+```
+### 3. Reservas com passageiro e destino
+```sql
+SELECT 
+    r.id_reserva,
+    u.nome AS passageiro,
+    c.origem,
+    c.destino,
+    c.data_saida,
+    r.data_reserva,
+    r.status_reserva
+FROM reserva r
+INNER JOIN usuario u ON r.id_usuario = u.id_usuario
+INNER JOIN carona c ON r.id_carona = c.id_carona
+WHERE u.tipo_usuario = 'passageiro';
+```
+### 4.Relatório completo com passageiro, motorista e veículo
+```sql
+SELECT 
+    r.id_reserva,
+    passageiro.nome AS passageiro,
+    motorista.nome AS motorista,
+    v.modelo AS veiculo,
+    v.placa,
+    c.origem,
+    c.destino,
+    c.data_saida,
+    c.horario_saida,
+    r.status_reserva
+FROM reserva r
+INNER JOIN usuario passageiro ON r.id_usuario = passageiro.id_usuario
+INNER JOIN carona c ON r.id_carona = c.id_carona
+INNER JOIN usuario motorista ON c.id_usuario = motorista.id_usuario
+INNER JOIN veiculo v ON c.id_veiculo = v.id_veiculo
+WHERE passageiro.tipo_usuario = 'passageiro'
+  AND motorista.tipo_usuario = 'motorista';
+```
+### 5. Motoristas mesmo sem carona cadastrada
+```sql
+SELECT 
+    u.id_usuario,
+    u.nome AS motorista,
+    c.id_carona,
+    c.destino
+FROM usuario u
+LEFT JOIN carona c ON u.id_usuario = c.id_usuario
+WHERE u.tipo_usuario = 'motorista';
+```
 
 ## 📸 Demonstração do Sistema
 
@@ -120,3 +193,20 @@ Adicione aqui os prints do seu sistema.
 
 ## 📸 Lista de Caronas
 <img width="1920" height="1080" alt="Captura de tela de 2026-04-24 11-13-47" src="https://github.com/user-attachments/assets/bf09f2c3-d5c4-43a7-9b51-c131786a587c" />
+
+## 📸 Lista de Reservas
+
+<img width="1911" height="1013" alt="Captura de tela 2026-04-24 155641" src="https://github.com/user-attachments/assets/c565976d-cc22-4d48-927e-446c3be35fc3" />
+
+## 📸 Lista de Veículo
+<img width="1911" height="1008" alt="Captura de tela 2026-04-24 155902" src="https://github.com/user-attachments/assets/c3fb1d6a-73ca-4f60-9b8e-6d7db6cc87f6" />
+
+## 📸 Cadastro de Carona
+
+## 📸 Cadastro de Reserva
+
+## 📸 Atualização de Reserva
+
+## 📸 Exclusão de Reserva
+
+
