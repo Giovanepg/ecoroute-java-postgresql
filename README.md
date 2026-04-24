@@ -178,6 +178,14 @@ FROM usuario u
 LEFT JOIN carona c ON u.id_usuario = c.id_usuario
 WHERE u.tipo_usuario = 'motorista';
 ```
+## 🎥 Demonstração em Vídeo
+
+Confira abaixo um vídeo demonstrando o funcionamento do sistema **EcoRoute**:
+
+
+https://github.com/user-attachments/assets/e70c4e05-4af3-420a-bba6-a08a2ac41447
+
+
 
 ## 📸 Demonstração do Sistema
 
@@ -202,11 +210,18 @@ Adicione aqui os prints do seu sistema.
 <img width="1911" height="1008" alt="Captura de tela 2026-04-24 155902" src="https://github.com/user-attachments/assets/c3fb1d6a-73ca-4f60-9b8e-6d7db6cc87f6" />
 
 ## 📸 Cadastro de Carona
+<img width="1920" height="1080" alt="Captura de tela de 2026-04-24 16-24-25" src="https://github.com/user-attachments/assets/bbe398cc-e0c5-4dcd-8d8f-746137bc946a" />
 
 ## 📸 Cadastro de Reserva
+<img width="1920" height="1080" alt="Captura de tela de 2026-04-24 16-25-18" src="https://github.com/user-attachments/assets/704475c1-7307-40d5-bcfb-cce5064f650c" />
 
 ## 📸 Atualização de Reserva
+<img width="1920" height="1080" alt="Captura de tela de 2026-04-24 16-26-29" src="https://github.com/user-attachments/assets/d65cbfc3-8f02-460d-8820-76e5ea0d4e2d" />
 
 ## 📸 Exclusão de Reserva
+<img width="1920" height="1080" alt="Captura de tela de 2026-04-24 16-27-08" src="https://github.com/user-attachments/assets/9a294e35-e4c7-4931-aeae-ff7c8453fdd3" />
 
-
+## 👤 Autor
+* **Aluno** - **Giovane Ferreira Paes Ribeiro**
+* **Professor Anderson Costa**
+* Centro Universitário Santo Agostinho (UNIFSA)
