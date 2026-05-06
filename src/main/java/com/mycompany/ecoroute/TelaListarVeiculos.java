@@ -8,16 +8,13 @@ package com.mycompany.ecoroute;
  *
  * @author blacklegen
  */
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 public class TelaListarVeiculos extends JFrame {
@@ -28,12 +25,38 @@ public class TelaListarVeiculos extends JFrame {
 
     public TelaListarVeiculos() {
         setTitle("EcoRoute - Lista de Veículos");
-        setSize(800, 400);
+        setSize(950, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLayout(new BorderLayout());
 
-        modelo = new DefaultTableModel();
+        // Configurar cores
+        Color corFundo = new Color(248, 249, 250);
+        Color corCabecalho = new Color(70, 130, 180); // Azul aço diferente
+        Color corTexto = new Color(50, 50, 50);
+
+        getContentPane().setBackground(corFundo);
+
+        // Layout principal
+        JPanel painelPrincipal = new JPanel(new BorderLayout(20, 20));
+        painelPrincipal.setBorder(new EmptyBorder(20, 20, 20, 20));
+        painelPrincipal.setBackground(corFundo);
+
+        // Painel título
+        JPanel painelTitulo = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        painelTitulo.setBackground(corFundo);
+        JLabel titulo = new JLabel("🚗 Frota de Veículos");
+        titulo.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        titulo.setForeground(corCabecalho);
+        painelTitulo.add(titulo);
+        painelPrincipal.add(painelTitulo, BorderLayout.NORTH);
+
+        // Configurar modelo da tabela
+        modelo = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Tabela somente leitura
+            }
+        };
         modelo.addColumn("ID");
         modelo.addColumn("Modelo");
         modelo.addColumn("Placa");
@@ -41,20 +64,122 @@ public class TelaListarVeiculos extends JFrame {
         modelo.addColumn("Capacidade");
         modelo.addColumn("Motorista");
 
+        // Criar tabela estilizada
         tabela = new JTable(modelo);
-        add(new JScrollPane(tabela), BorderLayout.CENTER);
+        tabela.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        tabela.setRowHeight(35);
+        tabela.setShowGrid(true);
+        tabela.setGridColor(new Color(230, 230, 230));
+        tabela.setSelectionBackground(new Color(70, 130, 180, 100));
+        tabela.setSelectionForeground(Color.BLACK);
+        tabela.setIntercellSpacing(new Dimension(0, 1));
 
-        botaoFechar = new JButton("Fechar");
+        
+        // Renderizador personalizado para células
+        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                // Colocar texto no centro
+                setHorizontalAlignment(SwingConstants.CENTER);
+
+                // Colorir coluna de capacidade
+                if (column == 4 && value != null) {
+                    int capacidade = Integer.parseInt(value.toString());
+                    if (capacidade >= 5) {
+                        setForeground(new Color(60, 179, 113)); // Verde - alta capacidade
+                    } else if (capacidade >= 3) {
+                        setForeground(new Color(255, 140, 0)); // Laranja - média capacidade
+                    } else {
+                        setForeground(new Color(220, 20, 60)); // Vermelho - baixa capacidade
+                    }
+                } else {
+                    setForeground(corTexto);
+                }
+
+                // Alternar cores das linhas
+                if (!isSelected) {
+                    if (row % 2 == 0) {
+                        c.setBackground(Color.WHITE);
+                    } else {
+                        c.setBackground(new Color(248, 248, 248));
+                    }
+                }
+
+                return c;
+            }
+        };
+
+        // Aplicar renderizador a todas as colunas
+        for (int i = 0; i < tabela.getColumnCount(); i++) {
+            tabela.getColumnModel().getColumn(i).setCellRenderer(renderer);
+        }
+
+        // Scroll pane com borda
+        JScrollPane scrollPane = new JScrollPane(tabela);
+        scrollPane.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(230, 230, 230), 1),
+            BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+        scrollPane.getViewport().setBackground(Color.WHITE);
+
+        painelPrincipal.add(scrollPane, BorderLayout.CENTER);
+
+        // Painel de controles
+        JPanel painelControles = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        painelControles.setBackground(corFundo);
+
+        // Botão atualizar
+        JButton botaoAtualizar = new JButton("🔄 Atualizar");
+        botaoAtualizar.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        botaoAtualizar.setBackground(new Color(60, 179, 113)); // Verde
+        botaoAtualizar.setForeground(Color.WHITE);
+        botaoAtualizar.setFocusPainted(false);
+        botaoAtualizar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        botaoAtualizar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        botaoAtualizar.addActionListener(e -> atualizarTabela());
+
+        // Botão fechar
+        botaoFechar = new JButton("❌ Fechar");
+        botaoFechar.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        botaoFechar.setBackground(new Color(128, 128, 128));
+        botaoFechar.setForeground(Color.WHITE);
+        botaoFechar.setFocusPainted(false);
+        botaoFechar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        botaoFechar.setCursor(new Cursor(Cursor.HAND_CURSOR));
         botaoFechar.addActionListener(e -> dispose());
 
-        JPanel painelBotao = new JPanel();
-        painelBotao.add(botaoFechar);
+        // Adicionar efeitos hover
+        adicionarEfeitoHover(botaoAtualizar, new Color(60, 179, 113));
+        adicionarEfeitoHover(botaoFechar, new Color(128, 128, 128));
 
-        add(painelBotao, BorderLayout.SOUTH);
+        painelControles.add(botaoAtualizar);
+        painelControles.add(botaoFechar);
+        painelPrincipal.add(painelControles, BorderLayout.SOUTH);
 
+        add(painelPrincipal);
         carregarVeiculos();
-
         setVisible(true);
+    }
+
+    private void adicionarEfeitoHover(JButton botao, Color corBase) {
+        botao.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                botao.setBackground(corBase.brighter());
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                botao.setBackground(corBase);
+            }
+        });
+    }
+
+    private void atualizarTabela() {
+        modelo.setRowCount(0); // Limpar tabela
+        carregarVeiculos();
+        JOptionPane.showMessageDialog(this, "Lista de veículos atualizada!", "Atualização",
+                                      JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void carregarVeiculos() {
